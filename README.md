@@ -2,22 +2,6 @@
 
 A full-stack web application that enables citizens to report civic issues using AI-powered image captioning, geolocation tracking, and administrative monitoring.
 
-## 🚀 Features
-
-### User Features
-- **User Registration & Authentication** - JWT-based secure authentication
-- **Camera Capture** - Capture images directly from device camera
-- **Image Upload** - Upload existing images from device
-- **AI Image Captioning** - Automatic description generation using HuggingFace BLIP model
-- **Geolocation Detection** - Auto-detect user location
-- **Interactive Maps** - Google Maps integration with draggable markers
-- **Location Search** - Search and select custom locations
-- **Report Management** - View all submitted reports with status tracking
-
-### Admin Features
-- **Admin Dashboard** - Comprehensive analytics and reporting
-- **Report Management** - View, filter, and update all reports
-- **Dual View Modes** - Toggle between table and map views
 - **Status Updates** - Change report status (Pending → In Progress → Resolved)
 - **Advanced Filtering** - Filter by status and date range
 - **Analytics** - Real-time statistics on report counts by status
