@@ -1,0 +1,19 @@
+[build]
+  # Base directory for the build
+  base = "frontend"
+  
+  # Build command
+  command = "npm run build"
+  
+  # Publish directory (where the built files are)
+  publish = "dist"
+
+# SPA routing - redirect all routes to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Optional: Environment variables (if needed later)
+# [build.environment]
+#   NODE_VERSION = "18"
