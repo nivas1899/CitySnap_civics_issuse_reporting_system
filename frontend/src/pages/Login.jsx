@@ -11,8 +11,17 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // TESTING MODE: Bypass authentication and go directly to user dashboard
-        navigate('/dashboard');
+        setError('');
+        setLoading(true);
+
+        try {
+            await login({ email: formData.email, password: formData.password });
+            navigate('/dashboard');
+        } catch (err) {
+            setError('Failed to login: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
