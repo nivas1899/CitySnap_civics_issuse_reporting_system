@@ -1,128 +1,123 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// API Keys for rotation
-const API_KEYS = [
-    "AIzaSyBMRrlmzTCtrGp3p9FB9XGXxhs3eFysoGQ",
-    "AIzaSyBtOFeBuNxuUvKzgkdRwuF-V9ZG5D_xBNI",
-    "AIzaSyDB5fSoKwZC1mCaPlheUC-JIPgV5R8kS74"
-];
+// SambaNova AI Service for Image Analysis
+const SAMBANOVA_API_KEY = "f6bf0158-49f5-40a0-9065-7894f15a711a";
+const SAMBANOVA_BASE_URL = "https://api.sambanova.ai/v1";
+const VISION_MODEL = "Llama-3.2-90B-Vision-Instruct";
 
 export const aiService = {
-    // Track current key index
-    currentKeyIndex: 0,
-
     /**
-     * Get the next API key in rotation
+     * Convert image file to base64
      */
-    getApiKey() {
-        const key = API_KEYS[this.currentKeyIndex];
-        this.currentKeyIndex = (this.currentKeyIndex + 1) % API_KEYS.length;
-        console.log(`Using API Key index: ${this.currentKeyIndex} (rotated)`);
-        return key;
-    },
-
-    async generateCaption(imageFile) {
-        let lastError = null;
-
-        // Try each key if one fails
-        for (let i = 0; i < API_KEYS.length; i++) {
-            try {
-                const apiKey = this.getApiKey();
-                console.log("Generating caption with Gemini AI...");
-
-                // Initialize Google Generative AI
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-                // Convert image file to base64
-                const base64Image = await this.fileToGenerativePart(imageFile);
-
-                // Create prompt for civic issue analysis
-                const prompt = `
-            Analyze this image for civic issues reported by a citizen.
-            
-            Identify if the image contains any of the following civic problems:
-            - Potholes or damaged roads
-            - Garbage or waste accumulation
-            - Broken streetlights or poles
-            - Drainage issues, flooding, or water leaks
-            - Tree hazards or fallen branches
-            - Damaged traffic signs or signals
-            - Public property vandalism or graffiti
-            - Illegal parking or encroachment
-            
-            If NO clear civic issue is found (e.g. photos of people, food, pets, indoor rooms, selfies), output isCivicIssue: false.
-            
-            Provide the output in strict JSON format:
-            {
-              "title": "Short descriptive title (max 5-7 words)",
-              "description": "Detailed description of the problem observing visual details like size, severity, surroundings. Mention specific hazards.",
-              "isCivicIssue": boolean,
-              "validationReason": "Explanation of why this is or isn't a valid civic issue",
-              "severity": "Low", "Medium", or "High",
-              "action": "Recommended action for municipal authorities"
-            }
-          `;
-
-                // Generate content
-                const result = await model.generateContent([prompt, base64Image]);
-                const response = await result.response;
-                const text = response.text();
-
-                console.log("✅ Gemini AI SUCCESS - Raw response:", text);
-
-                // Parse JSON from response
-                // Remove any markdown code blocks if present
-                const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
-                const data = JSON.parse(cleanText);
-
-                return {
-                    title: data.title,
-                    description: `${data.description}\n\n**Severity:** ${data.severity}\n**Recommended Action:** ${data.action}`,
-                    isCivicIssue: data.isCivicIssue,
-                    validationReason: data.validationReason,
-                    rawCaption: "Analysis by Google Gemini AI"
-                };
-
-            } catch (err) {
-                console.error(`❌ Gemini AI Error (Attempt ${i + 1}/${API_KEYS.length}):`, {
-                    errorMessage: err.message,
-                    errorName: err.name,
-                    errorStack: err.stack,
-                    apiKeyIndex: this.currentKeyIndex,
-                    fullError: err
-                });
-                lastError = err;
-                // Continue to next key loop
-            }
-        }
-
-        // If all keys fail, use fallback
-        console.error("❌ ALL GEMINI API KEYS FAILED. Last error:", lastError);
-        console.warn("⚠️ Using fallback logic (manual description)");
-        return this.generateFallbackCaption(imageFile);
-    },
-
-    // Helper to convert File to GenerativePart (base64)
-    async fileToGenerativePart(file) {
+    async fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const base64Data = reader.result.split(',')[1];
-                resolve({
-                    inlineData: {
-                        data: base64Data,
-                        mimeType: file.type
-                    }
-                });
+                resolve(base64Data);
             };
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     },
 
+    async generateCaption(imageFile) {
+        try {
+            console.log("🚀 Generating caption with SambaNova AI...");
+
+            // Convert image to base64
+            const base64Image = await this.fileToBase64(imageFile);
+
+            // Create prompt for civic issue analysis
+            const prompt = `Analyze this image for civic issues reported by a citizen.
+
+Identify if the image contains any of the following civic problems:
+- Potholes or damaged roads
+- Garbage or waste accumulation
+- Broken streetlights or poles
+- Drainage issues, flooding, or water leaks
+- Tree hazards or fallen branches
+- Damaged traffic signs or signals
+- Public property vandalism or graffiti
+- Illegal parking or encroachment
+
+If NO clear civic issue is found (e.g. photos of people, food, pets, indoor rooms, selfies), output isCivicIssue: false.
+
+Provide the output in strict JSON format:
+{
+  "title": "Short descriptive title (max 5-7 words)",
+  "description": "Detailed description of the problem observing visual details like size, severity, surroundings. Mention specific hazards.",
+  "isCivicIssue": boolean,
+  "validationReason": "Explanation of why this is or isn't a valid civic issue",
+  "severity": "Low", "Medium", or "High",
+  "action": "Recommended action for municipal authorities"
+}`;
+
+            // Make API request to SambaNova
+            const response = await fetch(`${SAMBANOVA_BASE_URL}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${SAMBANOVA_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: VISION_MODEL,
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                {
+                                    type: "text",
+                                    text: prompt
+                                },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: `data:image/jpeg;base64,${base64Image}`
+                                    }
+                                }
+                            ]
+                        }
+                    ],
+                    temperature: 0.1,
+                    max_tokens: 1024
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`SambaNova API error: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            const aiResponse = data.choices[0].message.content;
+
+            console.log("✅ SambaNova AI SUCCESS - Raw response:", aiResponse);
+
+            // Parse JSON from response
+            const cleanText = aiResponse.replace(/```json/g, "").replace(/```/g, "").trim();
+            const parsedData = JSON.parse(cleanText);
+
+            return {
+                title: parsedData.title,
+                description: `${parsedData.description}\n\n**Severity:** ${parsedData.severity}\n**Recommended Action:** ${parsedData.action}`,
+                isCivicIssue: parsedData.isCivicIssue,
+                validationReason: parsedData.validationReason,
+                rawCaption: "Analysis by SambaNova AI"
+            };
+
+        } catch (err) {
+            console.error("❌ SambaNova AI Error:", {
+                errorMessage: err.message,
+                errorName: err.name,
+                fullError: err
+            });
+
+            // Use fallback
+            console.warn("⚠️ Using fallback logic (manual description)");
+            return this.generateFallbackCaption(imageFile);
+        }
+    },
+
     generateFallbackCaption(imageFile) {
-        // Keep existing fallback logic just in case
         const timestamp = new Date().toLocaleString('en-IN', {
             dateStyle: 'medium',
             timeStyle: 'short'
@@ -135,15 +130,14 @@ export const aiService = {
         // Detect issue type from filename
         const issueType = this.detectIssueType(fileName);
 
-        // CHANGED: If detected type is generic, STILL ALLOW IT (assume civic issue)
-        // This prevents false rejections when AI fails
+        // Allow submission with generic description if AI fails
         if (issueType.isGeneric) {
             console.warn("AI analysis failed and filename is generic. Allowing submission with generic description.");
             return {
                 title: "Civic Infrastructure Issue Reported",
                 rawDescription: "Civic infrastructure problem requiring assessment",
                 description: `A civic infrastructure issue has been reported. Please review the attached image to identify the specific problem.\n\n**Reported:** ${timestamp}\n**Image file:** ${imageFile.name} (${fileSize} KB)\n\n**Note:** AI analysis was unavailable. Manual review required.`,
-                isCivicIssue: true, // CHANGED: Allow instead of reject
+                isCivicIssue: true,
                 validationReason: "AI analysis unavailable. Assuming valid civic issue pending manual review."
             };
         }
@@ -163,15 +157,13 @@ export const aiService = {
             title: title,
             rawCaption: issueType.rawDescription,
             description: description,
-            isCivicIssue: true, // Assume true if filename matches specific keyword
+            isCivicIssue: true,
             validationReason: "Issue identified from file details"
         };
     },
 
     /**
      * Detect issue type from filename (Legacy regex method kept for fallback)
-     * @param {string} fileName - Lowercase filename without extension
-     * @returns {object} - Issue details
      */
     detectIssueType(fileName) {
         // Check for common civic issue keywords in filename
@@ -247,7 +239,7 @@ export const aiService = {
 
         // Default for unrecognized issues
         return {
-            isGeneric: true, // Marker for unknown issue type that validation Logic can use to REJECT
+            isGeneric: true,
             title: 'Civic Infrastructure Issue',
             rawDescription: 'General civic infrastructure problem',
             description: 'A civic infrastructure issue has been reported. Please review the attached image to identify the specific problem. The issue requires assessment and appropriate action from the municipal department.',
