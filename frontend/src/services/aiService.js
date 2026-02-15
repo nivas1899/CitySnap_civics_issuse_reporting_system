@@ -1,7 +1,7 @@
 // SambaNova AI Service for Image Analysis
 const SAMBANOVA_API_KEY = "f6bf0158-49f5-40a0-9065-7894f15a711a";
 const SAMBANOVA_BASE_URL = "https://api.sambanova.ai/v1";
-const VISION_MODEL = "Llama-3.2-90B-Vision-Instruct";
+const VISION_MODEL = "Llama-3.2-11B-Vision-Instruct";
 
 export const aiService = {
     /**
