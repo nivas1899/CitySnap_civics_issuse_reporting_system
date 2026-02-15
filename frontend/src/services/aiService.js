@@ -69,7 +69,7 @@ export const aiService = {
                 const response = await result.response;
                 const text = response.text();
 
-                console.log("Raw AI response:", text);
+                console.log("✅ Gemini AI SUCCESS - Raw response:", text);
 
                 // Parse JSON from response
                 // Remove any markdown code blocks if present
@@ -85,14 +85,21 @@ export const aiService = {
                 };
 
             } catch (err) {
-                console.error(`Gemini AI Service Error (Attempt ${i + 1}):`, err);
+                console.error(`❌ Gemini AI Error (Attempt ${i + 1}/${API_KEYS.length}):`, {
+                    errorMessage: err.message,
+                    errorName: err.name,
+                    errorStack: err.stack,
+                    apiKeyIndex: this.currentKeyIndex,
+                    fullError: err
+                });
                 lastError = err;
                 // Continue to next key loop
             }
         }
 
         // If all keys fail, use fallback
-        console.warn("All API keys failed, using fallback logic");
+        console.error("❌ ALL GEMINI API KEYS FAILED. Last error:", lastError);
+        console.warn("⚠️ Using fallback logic (manual description)");
         return this.generateFallbackCaption(imageFile);
     },
 
