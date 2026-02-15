@@ -32,7 +32,7 @@ export const aiService = {
 
                 // Initialize Google Generative AI
                 const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+                const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
 
                 // Convert image file to base64
                 const base64Image = await this.fileToGenerativePart(imageFile);
