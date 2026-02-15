@@ -127,14 +127,16 @@ export const aiService = {
         // Detect issue type from filename
         const issueType = this.detectIssueType(fileName);
 
-        // If detected type is generic (unknown) and AI failed, mark as NOT a civic issue
+        // CHANGED: If detected type is generic, STILL ALLOW IT (assume civic issue)
+        // This prevents false rejections when AI fails
         if (issueType.isGeneric) {
+            console.warn("AI analysis failed and filename is generic. Allowing submission with generic description.");
             return {
-                title: issueType.title,
-                rawDescription: issueType.rawDescription,
-                description: issueType.description,
-                isCivicIssue: false,
-                validationReason: "Could not identify a civic issue. AI analysis failed and filename does not indicate a specific problem."
+                title: "Civic Infrastructure Issue Reported",
+                rawDescription: "Civic infrastructure problem requiring assessment",
+                description: `A civic infrastructure issue has been reported. Please review the attached image to identify the specific problem.\n\n**Reported:** ${timestamp}\n**Image file:** ${imageFile.name} (${fileSize} KB)\n\n**Note:** AI analysis was unavailable. Manual review required.`,
+                isCivicIssue: true, // CHANGED: Allow instead of reject
+                validationReason: "AI analysis unavailable. Assuming valid civic issue pending manual review."
             };
         }
 
