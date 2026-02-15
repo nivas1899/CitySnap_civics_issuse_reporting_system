@@ -3,7 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // API Keys for rotation
 const API_KEYS = [
     "AIzaSyBMRrlmzTCtrGp3p9FB9XGXxhs3eFysoGQ",
-    "AIzaSyBtOFeBuNxuUvKzgkdRwuF-V9ZG5D_xBNI"
+    "AIzaSyBtOFeBuNxuUvKzgkdRwuF-V9ZG5D_xBNI",
+    "AIzaSyDB5fSoKwZC1mCaPlheUC-JIPgV5R8kS74"
 ];
 
 export const aiService = {
