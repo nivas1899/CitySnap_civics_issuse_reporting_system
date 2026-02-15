@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import AdminLogin from './pages/AdminLogin';
 import UserDashboard from './pages/UserDashboard';
 import CreateReport from './pages/CreateReport';
@@ -16,6 +17,7 @@ function App() {
                     {/* Public Routes */}
                     <Route path="/" element={<Landing />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/create-report" element={<CreateReport />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
 
@@ -23,9 +25,6 @@ function App() {
                     <Route path="/dashboard" element={<UserDashboard />} />
                     <Route path="/admin/dashboard" element={<AdminDashboard />} />
                     <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
-
-                    {/* Redirect old routes */}
-                    <Route path="/register" element={<Navigate to="/" />} />
 
                     {/* Catch all */}
                     <Route path="*" element={<Navigate to="/" />} />

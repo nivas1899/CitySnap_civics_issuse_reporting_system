@@ -37,13 +37,22 @@ const Register = () => {
             const { confirmPassword, ...registerData } = formData;
             const data = await register(registerData);
 
-            // Redirect based on role
-            if (data.user.role === 'admin') {
+            // Check if email confirmation is required
+            if (data.user && !data.session) {
+                setError('Please check your email to confirm your account before logging in.');
+                setLoading(false);
+                return;
+            }
+
+            // Success - redirect based on role
+            const userRole = data.user?.user_metadata?.role || 'user';
+            if (userRole === 'admin') {
                 navigate('/admin');
             } else {
                 navigate('/dashboard');
             }
         } catch (err) {
+            console.error('Registration error:', err);
             setError(err.message || 'Registration failed. Please try again.');
         } finally {
             setLoading(false);
