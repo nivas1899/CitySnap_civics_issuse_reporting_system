@@ -1,10 +1,18 @@
-# 🏛️ CitySnap - Civic Issue Reporting System
+# 🏛️ CitySnap — Civic Issue Reporting System
 
-A full-stack web application that enables citizens to report civic issues using AI-powered image captioning, geolocation tracking, and administrative monitoring.
+A full-stack web app for reporting civic issues: a citizen photographs a problem, an
+image-captioning model drafts the description, the location is pinned on a map, and an
+admin dashboard tracks each report through to resolution.
 
-- **Status Updates** - Change report status (Pending → In Progress → Resolved)
-- **Advanced Filtering** - Filter by status and date range
-- **Analytics** - Real-time statistics on report counts by status
+**Live demo:** https://city-snap-civics-issuse-reporting-s.vercel.app
+
+## Features
+
+- **Photo → description** — HuggingFace BLIP captions the uploaded/captured image; the user can edit before submitting
+- **Location** — browser geolocation with a draggable map marker (Google Maps)
+- **Report lifecycle** — Pending → In Progress → Resolved, updated by admins
+- **Admin dashboard** — table and map views, filter by status and date range, counts per status
+- **Auth** — JWT with role-based access (citizen / admin)
 
 ## 🛠️ Tech Stack
 
